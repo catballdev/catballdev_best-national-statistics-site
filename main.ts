@@ -15,12 +15,33 @@
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-frontend.ts';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
+const prog = basename(process.argv[1] ?? 'main.ts');
+
+// Handle --help flag early
+if (process.argv.includes('--help')) {
+  console.log(`${prog} - Build a stats portal snapshot for the make.fun Best National Statistics Site competition`);
+  console.log('');
+  console.log('Options:');
+  console.log('  --input <dir>   Directory to read source files from (default: script directory)');
+  console.log('  --output <dir>  Directory to write the snapshot to (default: /output or $MAKEFUN_OUTPUT_DIR)');
+  console.log('  --help          Show this help message');
+  console.log('');
+  console.log('Environment: MAKEFUN_OUTPUT_DIR overrides --output if set');
+  process.exit(0);
+}
+
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
+if (!existsSync(join(here, 'app'))) {
+  console.error(`Error: source directory not found: ${here}/app`);
+  console.error('  Hint: pass --input to specify a different source directory');
+  process.exit(1);
+}
 
 mkdirSync(out, { recursive: true });
 cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });

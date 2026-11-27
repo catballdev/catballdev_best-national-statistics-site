@@ -56,9 +56,9 @@ createServer((request, response) => {
   response.writeHead(200, {
     'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
     'content-length': size,
-    'cache-control': 'no-store',
+    'Cache-Control': 'no-store',
   });
   createReadStream(file).pipe(response);
 }).listen(port, '127.0.0.1', () => {
-  console.log(`app/ is on http://localhost:${port}`);
+  console.error(`Statlas server: serving ${root} on http://localhost:${port}`);
 });
